@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Simple CRUD API</title>
+    <script>
+      async function fetchItems() {
+        const response = await fetch("/items");
+        const items = await response.json();
+        const itemsList = document.getElementById("itemsList");
+        itemsList.innerHTML = "";
+        items.forEach((item) => {
+          itemsList.innerHTML += `<li>${item.name} - $${item.price} <button onclick="deleteItem('${item.id}')">Delete</button></li>`;
+        });
+      }
+
+      async function createItem() {
+        const name = document.getElementById("name").value;
+        const price = document.getElementById("price").value;
+        const id = Date.now().toString(); // Generate a simple ID
+        await fetch("/items/create", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ id, name, price: parseInt(price) }),
+        });
+        fetchItems();
+      }
+
+      async function deleteItem(id) {
+        await fetch(`/items/delete?id=${id}`, {
+          method: "DELETE",
+        });
+        fetchItems();
+      }
+
+      window.onload = fetchItems;
+    </script>
+  </head>
+  <body>
+    <h1>CRUD</h1>
+    <input type="text" id="name" placeholder="Item Name" required />
+    <input type="number" id="price" placeholder="Item Price" required />
+    <button onclick="createItem()">Add Item</button>
+    <ul id="itemsList"></ul>
+  </body>
+</html>
